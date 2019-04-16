@@ -1,27 +1,37 @@
-# OS generated files #
-######################
+##
+# OS generated files
+##
 .DS_Store*
 ehthumbs.db
 Thumbs.db
 *.swp
 
-# Sublime #
-###########
+##
+# Sublime
+##
 *.sublime-project
 *.sublime-workspace
 
-# SASS #
-##########
+##
+# SASS
+##
 .sass-cache
 
-# PHPStorm #
-############
+##
+# PHPStorm
+##
 .idea
 
 
+
+##
+# Docksal
+##
+.docksal/docksal-local.env
+
+##
+# DKAN/DKTL
+##
+src/site/files
 /backups
 /backups/*
-
-# Docksal #
-###########
-.docksal/docksal-local.env
