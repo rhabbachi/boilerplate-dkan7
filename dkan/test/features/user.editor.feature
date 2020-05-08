@@ -1,8 +1,11 @@
 # time:0m27.25s
-@api @disablecaptcha
+@api @disablecaptcha @smoketest
 Feature: User command center links for editor role.
 
   Background:
+    Given pages:
+      | name          | url           |
+      | Users         | /admin/people |
     Given users:
       | name    | mail                | roles                |
       | Jaz     | jaz@example.com     | editor               |
@@ -35,10 +38,11 @@ Feature: User command center links for editor role.
     When I click "Content" in the "admin menu" region
     Then I should see "Operations"
 
+  @javascript
   Scenario: Editor role can view the file list
     Given I am logged in as "Jaz"
-    When I click "Content" in the "admin menu" region
-    And I click "Files"
+    When I hover over the admin menu item "Content"
+    And I click "Files" in the "admin menu" region
     Then I should see "Thumbnails"
 
   @javascript
@@ -68,3 +72,9 @@ Feature: User command center links for editor role.
     Then I hover over the admin menu item "Taxonomy"
     And I click "Topics"
     Then I should see "Topics"
+
+  Scenario: Editor should not be able to manage users
+    Given I am logged in as "Jaz"
+    And I am on "Users" page
+    Then I should see "Access denied"
+

@@ -165,7 +165,6 @@ function dkan_sitewide_update_status_alter(&$projects) {
   $up_to_date_projects = array(
     'gravatar',
     'beautytips',
-    'feeds_field_fetcher',
     'multistep',
     'linkchecker',
   );
@@ -264,15 +263,6 @@ function dkan_sitewide_preprocess_page(&$variables) {
   // Don't set a special page title if it's the front page.
   if (isset($variables['is_front']) && $variables['is_front'] == TRUE) {
     drupal_set_title('');
-  }
-  // Redirect 404 to search page.
-  $header = drupal_get_http_header("status");
-  if($header == "404 Not Found") {
-    $message = t('The page you requested does not exist or has moved. Try searching the site.');
-    drupal_set_message($message, 'status', FALSE);
-    $query = str_replace('/', ' ', $_SERVER['REQUEST_URI']);
-    unset($_GET['destination']);
-    drupal_goto('search', array('query' => array('query' => $query)));
   }
 }
 

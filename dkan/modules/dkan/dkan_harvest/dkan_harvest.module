@@ -5,6 +5,8 @@
  * Code for the DKAN Harvest feature.
  */
 
+use dkanDataset\GetRemoteFileInfo;
+
 include_once 'dkan_harvest.features.inc';
 
 // TODO Probably move this to drupal variables.
@@ -50,6 +52,31 @@ function dkan_harvest_preprocess_page(&$vars) {
   $path = drupal_get_path('module', 'dkan_harvest');
   if (isset($vars['node']) && $vars['node']->type == 'harvest_source') {
     drupal_add_js($path . '/js/harvest_source_summary.js');
+  }
+}
+
+/**
+ * Implement hook_preprocess_status_messages().
+ */
+function dkan_harvest_preprocess_status_messages(&$variables) {
+  // Hide messages if running harvest.
+  if ((isset($_SESSION['dkan_harvest_running'])
+      && $_SESSION['dkan_harvest_running'] === TRUE)
+      || current_path() === 'admin/dkan/harvest/dashboard'
+  ) {
+    if (isset($_SESSION['messages'])) {
+      foreach ($_SESSION['messages'] as $type => $messages) {
+        if ($type == 'status') {
+          foreach ($messages as $key => $message) {
+            if (preg_match('/cannot be imported to our datastore/', $message)) {
+              unset($_SESSION['messages'][$type][$key]);
+            } elseif (preg_match('/Groups were updated on/', $message)) {
+              unset($_SESSION['messages'][$type][$key]);
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -248,20 +275,29 @@ function dkan_harvest_page_preview($node) {
 
   if (!$cache_dir) {
     // The cache directory does not exist.
-    // Perform a cache operation.
-    $batch_operations = array();
-    $batch_operations[] = array('dkan_harvest_cache_source_batch_op', array($harvestSource));
+    $uri = $harvestSource->uri;
+    $info = new GetRemoteFileInfo($uri, 'test');
+    if (!$info->getInfo() ||
+        (!empty($info->getType()) && strpos($info->getType(), 'json') === FALSE)) {
+      $output .= t("<div class=\"alert alert-warning\">Unable to harvest from <em>@url</em>. Please check the value of 'Source URI' and confirm that it is publicly accessible and is a json endpoint. Then resubmit.</div>",
+          ['@url' => $uri]);
+    }
+    else {
+      // Perform a cache operation.
+      $batch_operations = array();
+      $batch_operations[] = array('dkan_harvest_cache_source_batch_op', array($harvestSource));
 
-    // Setup batch process.
-    $batch = array(
-      'operations' => $batch_operations,
-      'title' => t('Caching source and preparing Harvest preview...'),
-      'init_message' => t('Processed 0%.'),
-      'progress_message' => t('Processed @percentage.'),
-      'error_message' => t('An error ocurred while caching the source.'),
-    );
-    batch_set($batch);
-    batch_process();
+      // Setup batch process.
+      $batch = array(
+          'operations' => $batch_operations,
+          'title' => t('Caching source and preparing Harvest preview...'),
+          'init_message' => t('Processed 0%.'),
+          'progress_message' => t('Processed @percentage.'),
+          'error_message' => t('An error ocurred while caching the source.'),
+      );
+      batch_set($batch);
+      batch_process();
+    }
   }
   else {
     // The cache directory exists. Load the table.
@@ -412,9 +448,11 @@ function dkan_harvest_cache_sources_in_batch(array $harvest_sources = array(), $
  *   The context associated with the batch process.
  */
 function dkan_harvest_migrate_source_batch_op($harvest_source, array $options = array(), array &$context = array()) {
+  $_SESSION['dkan_harvest_running'] = TRUE;
 
   // Load migration.
   $migration = $harvest_source->getMigration();
+
   if (!$migration) {
     // The migration could not be loaded. Display a message and
     // mark the batch operation as finished.
@@ -423,8 +461,23 @@ function dkan_harvest_migrate_source_batch_op($harvest_source, array $options = 
     return;
   }
 
+  // Update the migration log ID if available from context.
+  $logID = FALSE;
+
+  if (isset($context['sandbox']['logID'])) {
+    $logID = $context['sandbox']['logID'];
+    $migration->setLogId($logID);
+  }
+
   // Process migration.
   $migration_status = $migration->processImport($options);
+
+  // Update the context logID.
+  if ($logID == FALSE) {
+    $logID = $migration->getLogId();
+    $context['sandbox']['logID'] = $logID;
+  }
+
   // Grab the migration results from the previous pass on this batch operation (if any).
   $old_migration_results = isset($context['results']) ? $context['results'] : array();
   // Get the results from the current migration.
@@ -434,7 +487,7 @@ function dkan_harvest_migrate_source_batch_op($harvest_source, array $options = 
   // Save results on context so they are available if this batch operation is run again.
   $context['results'] = $updated_results;
 
-  // Mark the batch operation finished as default.
+  // Mark the batch operation finished by default.
   $context['finished'] = 1;
 
   // Check if the harvest process is completed or if we need to continue with more
@@ -472,6 +525,7 @@ function dkan_harvest_migrate_source_batch_op($harvest_source, array $options = 
     dkan_harvest_message_cleanup($harvest_source, $updated_results);
     // Log migration event on log tables.
     $migration->logEvent($updated_results);
+    unset($_SESSION['dkan_harvest_running']);
   }
 }
 
@@ -1160,7 +1214,7 @@ function dkan_harvest_node_insert($node) {
       dkan_harvest_get_migration($harvest_source);
     }
     catch (\Exception $e) {
-      watchdog('dkan_harvest', $e->getMessage(), WATCHDOG_WARNING);
+      watchdog('dkan_harvest', $e->getMessage(), NULL, WATCHDOG_WARNING);
     }
   }
 }

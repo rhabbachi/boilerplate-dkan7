@@ -30,6 +30,7 @@ function dkan_additional_setup() {
       array('dkan_markdown_setup', array()),
       array('dkan_enable_optional_module', array('dkan_permissions')),
       array('dkan_enable_optional_module', array('dkan_default_topics')),
+      array('dkan_enable_optional_module', array('dkan_dataset_search')),
       array('dkan_revert_feature',
         array(
           'dkan_sitewide_menu',
@@ -317,7 +318,8 @@ function dkan_misc_variables_set(array &$context) {
   variable_set('page_manager_node_view_disabled', FALSE);
   variable_set('page_manager_node_edit_disabled', FALSE);
   variable_set('page_manager_user_view_disabled', FALSE);
-  variable_set('jquery_update_jquery_version', '1.10');
+  variable_set('jquery_update_jquery_version', '1.12');
+  variable_set('jquery_update_jquery_migrate_enable', '1');
   // Disable selected views enabled by contributed modules.
   $views_disable = array(
     'og_extras_nodes' => TRUE,
@@ -328,6 +330,7 @@ function dkan_misc_variables_set(array &$context) {
     'dataset' => TRUE,
     'admin_views_file' => TRUE,
     'admin_views_node' => TRUE,
+    'admin_views_user' => TRUE,
   );
   variable_set('views_defaults', $views_disable);
 }

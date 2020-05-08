@@ -1,3 +1,151 @@
+7.x-1.18.3
+-----------
+ - #3022 Patch og_moderation module to allow users to revert nodes.
+
+7.x-1.18.2
+-----------
+ - #3023 Update recline hash on drupal-org.make
+
+7.x-1.18.1
+-----------
+ - #3016 Add Drush command to remove datastore config and drop datastore table for resource.
+ - #3018 Upgrade recline to 7.x-2.2 -> fixes how the sort parameter is built
+ - #3017 Patch facetapi to hide block when facet is empty.
+ - #3015 Add summary option to Group description.
+
+7.x-1.18
+-----------
+ - #3012 Prevent infinite loop in Harvest Source preview page
+ - #3002 Add release script and Jenkinsfile
+ - #2733 Decouple search from dkan_panels & other features
+ - #2984 Remove feeds modules
+ - #2985 Remove dreprecated dkan_sitewide_roles_perms module
+ - #3004 Update contrib modules (facet_api, facet_api_bonus, file_entity, honeypot, link, media, media_youtube, panopoly_images)
+ - #2995 Remove 404 redirect
+ - #2968 Stop queuing dataset "log" and only do if > 1min
+ - #2975 Add file hash option
+ - #2983 Separate harvest classes into separate files and do some light cleanup
+ - #3010 Update radix to 3.8
+ - #3008 Add admin_views contrib module
+ - #3007 Fix typo in dkan_datastore_proxy function
+ - #3003 Improve validation for temporal values when harvesting
+ - #2998 Move check for file size into the proxy function
+
+
+7.x-1.17.4
+-----------
+ - #2997 Add views patch 3054091
+ 
+7.x-1.17.3
+-----------
+ - #2996 Security release for Drupal 7.69
+
+7.x-1.17.2
+-----------
+ - #2989 Bump symfony/dependency-injection from 2.8.38 to 2.8.52 in /test
+
+7.x-1.17.1
+-----------
+ - #2982 #2986 Remove admin_views
+ - #2977 Move documentation images to S3
+ - #2959 Remove deprecated ahoy files
+ - #2973 Update list of professional help in docs
+ - #2972 Fix branch/tag in drupal-org.make file
+ - #2967 Upgrade ODSM and enable fast token browser
+ - 5282845 Adjustments to behat tests
+ - 8953e45 Restore phpunit.xml file
+ - #2964 Fix polling places file
+ - #2963 Fix Call to a member function getTimestamp() on null error
+ - fd331bc Update dkan sites list
+
+7.x-1.17
+-----------
+ - #2956 Update new WCAG-compliant default theme colors to be consistent across the site.
+ - #2957 Update frequency values on default content files.
+ - #2954 Update contrib modules, adjust DKAN code to support PHP 7.2
+ - #2951 Update default greetings on workbench email templates.
+ - #2908 Add DKAN Periodic Updates module
+ - #2804 Disable and uninstall feeds, feeds_flatstore_processor, and feeds_field_fetcher modules
+ - #2945 Upgrade imagecache_actions to 1.11
+ - #2944 Specify behavior on dkan_workflow moderation set state action to avoid extra node_save.
+ - #2943 Add documentation for DKAN Feedback
+ - #2940 Update Open Data Schema Map to 7.x-2.4
+ - #2935 Add documentation for DKAN custom solr
+ - #2931 Add patch for NULL controller class
+ - #2921 Fix gaps in WCAG compliance
+
+7.x-1.16.13
+-----------
+ - #2928 Update ODSM to 7.x-2.3 to fix broken RDF/JSON links
+ - #2918 Avoid importing/orphaning when harvest cache is not present for unavailable sources.
+ - #2919 Security update for imagecache_actions
+ 
+7.x-1.16.12
+------------
+ - #2892 Harvest support range dates separated by dashes
+ - #2894 Remove user field on unpublished nodes tab on workbench moderation UI.
+ - #2889 Make Page Title reflect dataset/resource content
+ - #2893 Update Open Data Schema Map to 7.x-2.2
+ - #2885 Security update for uuid and tablefield modules
+ 
+7.x-1.16.11
+------------
+ - #2876 Update the datastore lock code to use drupal functions
+ - #2879 Update dkan_workflow to add option to delete unpublished nodes
+ - #2880 Fix drush command that deletes orphaned datastore tables
+ - #2870 Remove workflow emails from dkan_workflow
+ - #2878 Remove hard-coded access to revisions for anonymous users
+ 
+7.x-1.16.10
+-----------
+ - #2874 Security update for Drupal to 7.67 (SA-CORE-2019-007)
+ - #2730 Behat test improvements
+ - #2862 Add primary key to datastore tables. Create hook_datastore_post_import to allow users to execute actions right after data has been imported into the datastore.
+ - #2842 Fix harvest migration message logging for batched migrations
+
+7.x-1.16.9
+----------
+ - #2864 Tablefield security update
+ - #2864 Drupal core security update
+ - #2863 Use the data.json mediaType value to assign the resource extension during Harvest if the format is not given.
+ - #2809 Remove 'Feedback' from the list of content types managed by DKAN Workflow
+ - #2809 Apply patch to views to fix a bug on set_group_operator when using hook_views_query_alter
+ - #2809 Remove user picture from comment.tpl.php
+ - #2860 Document new datastore behavior
+ - #2852 Add 'count' to the list of functions supported by the Datastore API
+
+7.x-1.16.8
+----------
+ - #2854 Wrap words on harvest summary sidebar.
+ - #2856 Switch to forked version of font_icon_select module.
+ - #2858 Security Upgrade of Services to 3.24.
+
+7.x-1.16.7
+----------
+ - #2780 Run tests with dktl.
+ - #2853 Security Upgrade of Module Filter to 2.2.
+
+7.x-1.16.6
+----------
+ - #2848 Upgrade Drupal to 7.65
+ - #2812 Use ISO 8601 Date Format for Temporal Coverage
+
+7.x-1.16.5
+----------
+ - #2846 Update for views 7.x-3.21 and ctools 7.x-1.15
+ - #2824 Handle missing harvest source with a warning rather than mass un-publishing of content.
+ - #2840 Skip the dataset_changelog step when harvesting, datasets always get a new revision with out it
+ - #2839 Add drush command for deleting orphaned data tables drush dkan-datastore-drop-orphan-tables
+ - #2828 Implement the --feedback flag when harvesting to avoid SSH time outs during long harvests
+
+7.x-1.16.4
+----------
+ - #2837 Security updates for the services and path_breadcrumbs contrib modules
+ - #2834 Add drush command drush ddpr to reduce duplicate dataset revisions from the same timestamp to a single revision.
+ - #2830 Add patch to workbench_moderation to avoid deadlock on update
+ - #2821 Declare file size of remote files as 'unknown' since the value given can be inaccurate
+ - #2823 Update dkan_dataset_validate_date() function to work on additional date formats
+
 7.x-1.16.3
 ----------
  - #2832 Security updates for link and restws

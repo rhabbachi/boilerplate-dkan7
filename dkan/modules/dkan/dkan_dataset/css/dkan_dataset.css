@@ -249,7 +249,7 @@ div.vertical-tabs #edit-path-alias {
   padding-top: 0;
 }
 .view-dkan-datasets .view-header {
-  color: #c9c9c9;
+  color: #767676;
   font-size: 32px;
   font-weight: bold;
   margin-bottom: 15px;
@@ -476,7 +476,7 @@ li .heading:hover {
 }
 .label[data-format=csv],
 .label[data-format*=csv] {
-  background-color: #dfb100;
+  background-color: #a64300;
 }
 .label[data-format=xls],
 .label[data-format*=xls] {
@@ -484,7 +484,7 @@ li .heading:hover {
 }
 .label[data-format=zip],
 .label[data-format*=zip] {
-  background-color: #686868;
+  background-color: #595959;
 }
 .label[data-format=api],
 .label[data-format*=api] {
@@ -571,7 +571,7 @@ li .heading:hover {
 }
 .format-label[data-format=csv]:before {
   content: "\e622";
-  color: #dfb100;
+  color: #a64300;
 }
 .format-label[data-format=html]:before {
   content: "\e645";
@@ -723,4 +723,22 @@ body .node-dataset #data-and-resources ul.resource-list li .orig {
 }
 .field-name-field-data-dictionary .text-format-wrapper .description {
   margin-bottom: 10px;
+}
+.file-hash {
+  word-wrap: break-word;
+  font-size: 12px;
+  line-height: 1.2;
+  margin: 6px 0;
+  color: #888888;
+}
+.file-hash--content {
+  border-style: solid;
+  width: 80%;
+}
+td .file-hash--content {
+  background-color:inherit;
+  width:100%;
+}
+.file-hash--label {
+  font-weight: bold;
 }

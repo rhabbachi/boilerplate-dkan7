@@ -27,6 +27,15 @@ function dkan_datastore_drush_command() {
     'callback' => 'dkan_datastore_drush_drop_orphan_tables',
   );
 
+  $items['dkan-datastore-delete'] = array(
+    'description' => 'Remove datastore store configuration and datastore table for a resource.',
+    'callback' => 'dkan_datastore_drush_delete',
+    'arguments' => array(
+      'resource_nid' => "Resource NID"
+    ),
+  );
+
+
   return $items;
 }
 
@@ -53,9 +62,9 @@ function dkan_datastore_drush_drop_orphan_tables() {
     $t = (array)$record;
     $db = key($t);
     $table = $record->{$db};
-    if (strpos($table, 'datastore_dkan') !== false) {
-      // Removes 'feeds_datastore_dkan_file_';
-      $nids[] = substr($table, 26);
+    if (strpos($table, 'dkan_datastore') !== false) {
+      // Removes 'dkan_datastore_';
+      $nids[] = substr($table, 15);
     }
   }
   if (!empty($nids)) {
@@ -65,7 +74,7 @@ function dkan_datastore_drush_drop_orphan_tables() {
       $query = db_query('SELECT nid FROM {node} WHERE nid = :nid', array(':nid' => $nid));
       $result = $query->fetchAll();
       if (count($result) < 1) {
-        $to_truncate[] = 'feeds_datastore_dkan_file_' . $nid;
+        $to_truncate[] = 'dkan_datastore_' . $nid;
         $orphans++;
       }
     }
@@ -77,4 +86,18 @@ function dkan_datastore_drush_drop_orphan_tables() {
   } else {
     drush_print("There are currently no datastore tables on this site.");
   }
+}
+
+/**
+ * Remove datastore config and table.
+ *
+ * @param $resource_id
+ *  The nid of the resource whose datastore should be removed.
+ */
+function dkan_datastore_drush_delete($resource_id) {
+  $state_storage = new LockableDrupalVariables("dkan_datastore");
+  $state_storage->delete($resource_id);
+
+  $table = 'dkan_datastore_' . $resource_id;
+  $query = db_drop_table($table);
 }

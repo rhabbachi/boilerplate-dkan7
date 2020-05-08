@@ -326,11 +326,21 @@ class DatajsonHarvestMigrationScenariosTest extends PHPUnit_Framework_TestCase {
     }
 
     // Message table assertions.
-    // We expect one new message from this test when harvesting the empty
-    // source.
-    $this->assertEquals(1, count($migrationEmptyMessage));
-    $messageEntry = end($migrationEmptyMessage);
-    $this->assertEquals("Items to import is 0. Looks like source is missing. No updates can be made at this time.", $messageEntry->message);
+    // We expect 2 new message from this test when harvesting the empty
+    // source:
+    $expectedEntries = array(
+      'Items to import is 0. Looks like source is missing. No updates can be made at this time.',
+      'Cannot look-up the harvest source Node ID',
+    );
+
+    $this->assertEquals(count($expectedEntries), count($migrationEmptyMessage));
+
+    $loggedEntries = array_map(function($item) {
+      return $item->message;
+    },$migrationEmptyMessage);
+
+    // Use array_values to avoid assertion being scued by the index.
+    $this->assertEquals(array_values($expectedEntries), array_values($loggedEntries));
   }
 
   /**
@@ -370,9 +380,12 @@ class DatajsonHarvestMigrationScenariosTest extends PHPUnit_Framework_TestCase {
     /*
      * Test message table.
      */
-    // Harvesting the empty source will add a new error message.
+    // Harvesting the empty source will add 3 new error message.
+    // 1- "Cannot lookup the harvest source Node ID".
+    // 2- "MigrateException Illegal offset type in isset or empty".
+    // 3- "Illegal offset type in isset or empty".
     $this->assertNotEquals($migrationErrorMessage, $migrationEmptyMessage);
-    $this->assertEquals(count($migrationErrorMessage) + 1, count($migrationEmptyMessage));
+    $this->assertEquals(count($migrationErrorMessage) + 3, count($migrationEmptyMessage));
   }
 
   /**
@@ -541,7 +554,7 @@ class DatajsonHarvestMigrationScenariosTest extends PHPUnit_Framework_TestCase {
       ),
       'Acute IPPS - Readmissions Reduction Program' => array(
         'value' => "2013-01-01 00:00:00",
-        'value2' => "2013-01-01 00:00:00",
+        'value2' => "2013-06-01 00:00:00",
       ),
       'Acute IPPS - Disproportionate Share Hospital - DSH' => array(
         'value' => "1988-01-01 00:00:00",
@@ -550,6 +563,18 @@ class DatajsonHarvestMigrationScenariosTest extends PHPUnit_Framework_TestCase {
       'UPIN Group File' => array(
         'value' => "2000-01-15T00:45:00Z",
         'value2' => "2010-01-15T00:06:00Z",
+      ),
+      'Invalid temporal: 2007-present' => array(
+        'value' => NULL,
+      ),
+      'Invalid temporal: January' => array(
+        'value' => NULL,
+      ),
+      'Invalid temporal: 01-01-2015' => array(
+        'value' => NULL,
+      ),
+      'Invalid temporal: 01/01/2015-12/31/201' => array(
+        'value' => NULL,
       ),
     );
 
@@ -566,10 +591,17 @@ class DatajsonHarvestMigrationScenariosTest extends PHPUnit_Framework_TestCase {
 
     foreach ($dest_ids as $distid) {
       $dataset = entity_metadata_wrapper('node', $distid);
-      $value = new DateTime($expected_temporal[$dataset->label()]['value']);
-      $value2 = new DateTime($expected_temporal[$dataset->label()]['value2']);
-      $this->assertEquals($value->getTimestamp(), $dataset->field_temporal_coverage->value->value());
-      $this->assertEquals($value2->getTimestamp(), $dataset->field_temporal_coverage->value2->value());
+      if (is_null($expected_temporal[$dataset->label()]['value'])) {
+        // Date is invalid.
+        $this->assertNull($dataset->field_temporal_coverage->value());
+      }
+      else {
+        // Date is valid.
+        $value = strtotime($expected_temporal[$dataset->label()]['value']);
+        $value2 = strtotime($expected_temporal[$dataset->label()]['value2']);
+        $this->assertEquals($value, $dataset->field_temporal_coverage->value->value());
+        $this->assertEquals($value2, $dataset->field_temporal_coverage->value2->value());
+      }
     }
   }
 
@@ -778,6 +810,14 @@ class DatajsonHarvestMigrationScenariosTest extends PHPUnit_Framework_TestCase {
    */
   public static function getResourceTemporal() {
     $uri = file_create_url('profiles/dkan/test/phpunit/dkan_harvest/data/dkan_harvest_datajson_test_temporal.json');
+    return new HarvestSourceDataJsonStub($uri);
+  }
+
+  /**
+   * Test Harvest Source.
+   */
+  public static function getResourceTemporalInvalid() {
+    $uri = file_create_url('profiles/dkan/test/phpunit/dkan_harvest/data/dkan_harvest_datajson_test_temporal_invalid.json');
     return new HarvestSourceDataJsonStub($uri);
   }
 
